@@ -8,6 +8,7 @@
 
 ## Usage
 In terminal(command line) type: `rails s`
+
 Open in the browser URL: http://127.0.0.1:3000/
 
 ## Tests
