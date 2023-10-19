@@ -1,0 +1,9 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @forecast %>
+
+<div>
+  <%= link_to "Back to List of Forecasts", forecasts_path %>
+<br/><br/>
+  <%= button_to "Destroy this forecast", @forecast, method: :delete %>
+</div>

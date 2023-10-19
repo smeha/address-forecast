@@ -1,0 +1,27 @@
+<p style="color: green"><%= notice %></p>
+<br/>
+<br/>
+<%= link_to "Search/Cache New Forecast", new_forecast_path %>
+<br/>
+<h2>List Of Cached Forecasts(less than 30min ago)</h2>
+
+<div id="forecasts">
+  <% timeSinceCacheAgo = 30.minutes.ago.localtime %>
+  <% @forecasts.each do |forecast| %>
+    <% if forecast.updated_at.localtime >= timeSinceCacheAgo %>
+      <p>
+        ZIP: <%= forecast.zip_code %> | Updated at: <%= forecast.updated_at.localtime %> <%= link_to "Show This Forecast", forecast %>
+      </p>
+    <% end %>
+  <% end %>
+</div>
+<br/>
+
+<h2>List Of All Cached Forecasts</h2>
+<div id="forecasts_all">
+  <% @forecasts.each do |forecast| %>
+    <p>
+      ZIP: <%= forecast.zip_code %> <%= link_to "Show This Forecast", forecast %>
+    </p>
+  <% end %>
+</div>

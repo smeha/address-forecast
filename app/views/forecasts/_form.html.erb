@@ -1,0 +1,19 @@
+<%= form_with(model: forecast) do |form| %>
+  <% if forecast.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(forecast.errors.count, "error") %> prohibited this forecast from being saved:</h2>
+
+      <ul>
+        <% forecast.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div>
+    <%= form.label :zip_code, "ZIP Code:" %>
+    <%= form.text_field :zip_code %>
+  <div>
+    <%= form.submit "Get Forecast for the USA ZIP Code" %>
+  </div>
+<% end %>
