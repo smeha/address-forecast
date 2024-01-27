@@ -24,6 +24,13 @@ Open in the browser URL: http://127.0.0.1:3000/
 ## Tests
 In terminal(command line) type:  `rails test`
 
+## Environment variables for the application (.env file)
+**Strictly for development and test**
+
+See `.env` file in the project root directory
+
+More about the GEM itself: https://github.com/bkeepers/dotenv
+
 ## APIs Used
 ### https://www.geonames.org/
 For decoding ZIP Code to lat/long
@@ -36,13 +43,6 @@ Unused(!) example for only current forecast: http://api.geonames.org/findNearByW
 For getting the forecast via lat/long
 
 Example: https://api.weather.gov/points/{latitude},{longitude}
-
-### Environment variables for the application (.env file)
-**Strictly for development and test**
-
-See `.env` file in the project root directory
-
-More about the GEM itself: https://github.com/bkeepers/dotenv
 
 ## Initial Requirments
 ### Requirements:
