@@ -23,5 +23,10 @@ module AddressForecast
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # For loading 'dotenv' gem and .env variables
+    if Rails.env.test? || Rails.env.development?
+      Dotenv.load
+    end
   end
 end

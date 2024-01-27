@@ -14,6 +14,8 @@ In terminal(command line) type:
 
 `rails db:migrate`
 
+In the project root directory rename `sample_.env` file to `.env`
+
 ## Usage
 In terminal(command line) type: `rails s`
 
@@ -35,6 +37,12 @@ For getting the forecast via lat/long
 
 Example: https://api.weather.gov/points/{latitude},{longitude}
 
+### Environment variables for the application (.env file)
+**Strictly for development and test**
+
+See `.env` file in the project root directory
+
+More about the GEM itself: https://github.com/bkeepers/dotenv
 
 ## Initial Requirments
 ### Requirements:

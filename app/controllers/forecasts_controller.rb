@@ -28,13 +28,14 @@ class ForecastsController < ApplicationController
     timeSinceCache = 30.minutes.ago.localtime
 
     # API Calls with the ZIP Code param
+    # LOGIC BELLOW ONLY WHEN Forcast doesn't exist or need to be updated
     if forecast_params[:zip_code] && ((@forecastExist && @forecastExist.updated_at.localtime < timeSinceCache) || (!@forecastExist))
-      uri = URI("http://api.geonames.org/postalCodeLookupJSON?postalcode=#{forecast_params[:zip_code]}&country=USA&username=smeha")
+      uri = URI("#{ENV['GEONAMES_API_URL']}/postalCodeLookupJSON?postalcode=#{forecast_params[:zip_code]}&country=USA&username=#{ENV['GEONAMES_USERNAME']}")
       res = Net::HTTP.get_response(uri)
       dataLatLong = JSON.parse(res.body)
 
       # Round to 4 decimal digits per API specifications
-      uri = URI("https://api.weather.gov/points/#{"%.4f" % dataLatLong['postalcodes'][0]['lat']},#{"%.4f" % dataLatLong['postalcodes'][0]['lng']}")
+      uri = URI("#{ENV['WEATHER_GOV_API_URL']}/points/#{"%.4f" % dataLatLong['postalcodes'][0]['lat']},#{"%.4f" % dataLatLong['postalcodes'][0]['lng']}")
       res = Net::HTTP.get_response(uri)
       dataForecastProperties = JSON.parse(res.body)
 
@@ -122,6 +123,5 @@ class ForecastsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def forecast_params
       params.require(:forecast).permit(:zip_code, :current_temp, :high_temp, :low_temp)
-      # params.fetch(:forecast, {})
     end
 end
