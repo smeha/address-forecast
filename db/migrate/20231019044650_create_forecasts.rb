@@ -1,4 +1,4 @@
-class CreateForecasts < ActiveRecord::Migration[7.1]
+class CreateForecasts < ActiveRecord::Migration[8.1]
   def up
     create_table :forecasts do |t|
       t.string :zip_code, limit: 10, null: false, comment: 'ZIP Code with in mind for other countries than USA in future'

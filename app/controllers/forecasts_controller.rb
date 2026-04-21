@@ -1,5 +1,5 @@
-require 'uri'
-require 'net/http'
+require "uri"
+require "net/http"
 
 class ForecastsController < ApplicationController
   before_action :set_forecast, only: %i[ show edit update destroy ]
@@ -39,27 +39,27 @@ class ForecastsController < ApplicationController
       res = Net::HTTP.get_response(uri)
       dataForecastProperties = JSON.parse(res.body)
 
-      uri = URI(dataForecastProperties['properties']['forecast'])
+      uri = URI(dataForecastProperties["properties"]["forecast"])
       res = Net::HTTP.get_response(uri)
       dataForecast = JSON.parse(res.body)
 
       dataForLowHighTemp = []
 
-      nowDate = Time.now.strftime('%m/%d/%y')
-      dataForecast['properties']['periods'].each do |period|
-        periodDateStart = Time.parse(period['startTime']).strftime('%m/%d/%y')
-        periodDateEnd =  Time.parse(period['endTime']).strftime('%m/%d/%y')
+      nowDate = Time.now.strftime("%m/%d/%y")
+      dataForecast["properties"]["periods"].each do |period|
+        periodDateStart = Time.parse(period["startTime"]).strftime("%m/%d/%y")
+        periodDateEnd =  Time.parse(period["endTime"]).strftime("%m/%d/%y")
         if periodDateStart == nowDate || periodDateEnd == nowDate
-          dataForLowHighTemp << period['temperature']
+          dataForLowHighTemp << period["temperature"]
         end
       end
 
-      params[:forecast][:current_temp] = dataForecast['properties']['periods'][0]['temperature']
+      params[:forecast][:current_temp] = dataForecast["properties"]["periods"][0]["temperature"]
       params[:forecast][:low_temp] = dataForLowHighTemp.min
       params[:forecast][:high_temp] = dataForLowHighTemp.max
     end
 
-    if(@forecastExist && @forecastExist.updated_at.localtime < timeSinceCache)
+    if @forecastExist && @forecastExist.updated_at.localtime < timeSinceCache
       @forecast = @forecastExist
       respond_to do |format|
         if @forecast.update(forecast_params)

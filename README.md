@@ -1,22 +1,36 @@
-## Installation and Environment Used
+## Tech Stack
 * Mac OSX Monterey (12.6.8)
 * Ruby through rbenv
   * ruby 3.2.2
 * Bundler 2.4.20
 * Rails 7.1.1
 
-### First Installation 
-In terminal(command line) type:
+## How to run locally
+### Install dependencies
+```bash
+bundle install
+npm install
+```
 
-`bundle install`
+### Setup database
+```bash
+rails db:create
+rails db:migrate
+rails db:seed
+```
 
-`rails db:create`
+### Setup environment variables
+```bash
+cp .env.example .env
+```
 
-`rails db:migrate`
+### Run the project
+In separate terminals:
+```bash
+rails s
+```
 
-In the project root directory rename `sample_.env` file to `.env`
-
-## Usage
+### Usage
 In terminal(command line) type: `rails s`
 
 Open in the browser URL: http://127.0.0.1:3000/
