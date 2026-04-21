@@ -1,9 +1,11 @@
+# Address Forecast application
 ## Tech Stack
-* Mac OSX Monterey (12.6.8)
-* Ruby through rbenv
-  * ruby 3.2.2
-* Bundler 2.4.20
-* Rails 7.1.1
+- Ruby (v3.4.8)
+- Rails (v8.1)
+- PostgreSQL (v18)
+- Bundler (4.0.10)
+- RSpec-Rails (v8.0)
+- RuboCop (via rubocop-rails-omakase + rubocop-performance + rubocop-rspec)
 
 ## How to run locally
 ### Install dependencies
@@ -37,13 +39,6 @@ Open in the browser URL: http://127.0.0.1:3000/
 
 ## Tests
 In terminal(command line) type:  `rails test`
-
-## Environment variables for the application (.env file)
-**Strictly for development and test**
-
-See `.env` file in the project root directory
-
-More about the GEM itself: https://github.com/bkeepers/dotenv
 
 ## APIs Used
 ### https://www.geonames.org/
