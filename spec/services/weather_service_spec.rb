@@ -1,0 +1,59 @@
+require "rails_helper"
+
+RSpec.describe WeatherService do
+  before do
+    ENV["WEATHER_GOV_API_URL"] = "https://api.weather.gov"
+  end
+
+  after do
+    ENV.delete("WEATHER_GOV_API_URL")
+  end
+
+  describe ".fetch_forecast" do
+    subject(:result) { described_class.fetch_forecast(lat: 40.7484, lng: -73.9967) }
+
+    let(:points_body) do
+      { "properties" => { "forecast" => "https://api.weather.gov/gridpoints/OKX/33,37/forecast" } }.to_json
+    end
+
+    let(:now) { Time.now }
+    let(:forecast_body) do
+      {
+        "properties" => {
+          "periods" => [
+            { "temperature" => 72, "startTime" => now.iso8601, "endTime" => (now + 6.hours).iso8601 },
+            { "temperature" => 80, "startTime" => (now + 6.hours).iso8601, "endTime" => (now + 12.hours).iso8601 },
+            { "temperature" => 58, "startTime" => (now - 12.hours).iso8601, "endTime" => now.iso8601 }
+          ]
+        }
+      }.to_json
+    end
+
+    before do
+      stub_request(:get, /weather\.gov\/points/)
+        .to_return(status: 200, body: points_body, headers: { "Content-Type" => "application/json" })
+      stub_request(:get, /weather\.gov\/gridpoints/)
+        .to_return(status: 200, body: forecast_body, headers: { "Content-Type" => "application/json" })
+    end
+
+    it "returns current temperature from the first period" do
+      expect(result[:current_temp]).to eq(72)
+    end
+
+    it "returns the high temperature for today" do
+      expect(result[:high_temp]).to eq(80)
+    end
+
+    it "returns the low temperature for today" do
+      expect(result[:low_temp]).to eq(58)
+    end
+
+    context "when the points API does not return a forecast URL" do
+      let(:points_body) { { "properties" => {} }.to_json }
+
+      it "raises WeatherService::Error" do
+        expect { result }.to raise_error(WeatherService::Error, /forecast URL/)
+      end
+    end
+  end
+end

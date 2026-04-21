@@ -1,27 +1,26 @@
 <p style="color: green"><%= notice %></p>
-<br/>
-<br/>
-<%= link_to "Search/Cache New Forecast", new_forecast_path %>
-<br/>
-<h2>List Of Cached Forecasts(less than 30min ago)</h2>
 
-<div id="forecasts">
-  <% timeSinceCacheAgo = 30.minutes.ago.localtime %>
-  <% @forecasts.each do |forecast| %>
-    <% if forecast.updated_at.localtime >= timeSinceCacheAgo %>
-      <p>
-        ZIP: <%= forecast.zip_code %> | Updated at: <%= forecast.updated_at.localtime %> <%= link_to "Show This Forecast", forecast %>
-      </p>
+<%= link_to "Search/Cache New Forecast", new_forecast_path %>
+
+<h2>Recently Cached Forecasts (within 30 minutes)</h2>
+<div id="fresh_forecasts">
+  <% fresh = @forecasts.select(&:fresh?) %>
+  <% if fresh.empty? %>
+    <p>No recently cached forecasts.</p>
+  <% else %>
+    <% fresh.each do |forecast| %>
+      <p>ZIP: <%= forecast.zip_code %> | Updated at: <%= forecast.updated_at.localtime %> <%= link_to "View", forecast %></p>
     <% end %>
   <% end %>
 </div>
-<br/>
 
-<h2>List Of All Cached Forecasts</h2>
-<div id="forecasts_all">
-  <% @forecasts.each do |forecast| %>
-    <p>
-      ZIP: <%= forecast.zip_code %> <%= link_to "Show This Forecast", forecast %>
-    </p>
+<h2>All Cached Forecasts</h2>
+<div id="all_forecasts">
+  <% if @forecasts.empty? %>
+    <p>No cached forecasts.</p>
+  <% else %>
+    <% @forecasts.each do |forecast| %>
+      <p>ZIP: <%= forecast.zip_code %> | Updated at: <%= forecast.updated_at.localtime %> <%= link_to "View", forecast %></p>
+    <% end %>
   <% end %>
 </div>

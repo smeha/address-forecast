@@ -8,3 +8,6 @@ plugins:
 AllCops:
   TargetRubyVersion: 3.4
   NewCops: enable
+
+RSpec/MultipleExpectations:
+  Max: 5

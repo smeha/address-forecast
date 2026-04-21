@@ -1,4 +1,14 @@
 class Forecast < ApplicationRecord
-  validates :zip_code, presence: true, length: { maximum: 10 }
-  validates_format_of :zip_code,  with: /\A\d{5}\z/, message: "should be valid like example: '12345'"
+  CACHE_TTL = 30.minutes
+
+  validates :zip_code, presence: true, length: { maximum: 10 },
+                       format: { with: /\A\d{5}\z/, message: "must be a 5-digit US ZIP code" }
+  validates :current_temp, :high_temp, :low_temp, presence: true, numericality: { only_integer: true }
+
+  scope :fresh, -> { where("updated_at > ?", CACHE_TTL.ago) }
+  scope :by_recently_updated, -> { order(updated_at: :desc) }
+
+  def fresh?
+    updated_at > self.class::CACHE_TTL.ago
+  end
 end
