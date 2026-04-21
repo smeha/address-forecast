@@ -13,8 +13,10 @@ gem "jbuilder"
 gem "bootsnap", require: false
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
+group :development, :test do
+end
+
 group :development do
-  gem "dotenv-rails"
   gem "web-console"
 end
 
@@ -25,6 +27,7 @@ group :development, :test do
   gem "rubocop-rspec", require: false
   gem "bundler-audit", require: false
   gem "brakeman", require: false
+  gem "dotenv-rails"
   gem "rspec-rails", "~> 8.0"
   gem "factory_bot_rails"
 end
