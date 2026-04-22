@@ -10,11 +10,11 @@ gem "importmap-rails"
 gem "turbo-rails"
 gem "stimulus-rails"
 gem "jbuilder"
+gem "geocoder", "~> 1.8"
 gem "bootsnap", require: false
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
 group :development do
-  gem "dotenv-rails"
   gem "web-console"
 end
 

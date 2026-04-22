@@ -13,26 +13,30 @@ class ForecastsController < ApplicationController
   end
 
   def create
-    zip_code = forecast_params[:zip_code].to_s.strip
+    address = forecast_params[:address].to_s.strip
 
-    unless Forecast.valid_zip_code?(zip_code)
-      @forecast = Forecast.new(zip_code: zip_code)
-      @forecast.errors.add(:zip_code, zip_code.blank? ? :blank : "must be a 5-digit US ZIP code")
+    if address.blank?
+      @forecast = Forecast.new(address: address)
+      @forecast.errors.add(:address, :blank)
       render :new, status: :unprocessable_content
       return
     end
 
+    location = geocode_address(address)
+    return if performed?
+
+    zip_code = location.fetch(:zip_code)
     existing = Forecast.find_by(zip_code: zip_code)
 
     if existing&.fresh?
-      redirect_to forecast_url(existing), notice: "Forecast was already cached less than 30 minutes ago."
+      redirect_to forecast_url(existing), notice: "Forecast was pulled from cache."
       return
     end
 
-    weather_data = fetch_weather_data(zip_code)
+    weather_data = fetch_weather_data(location)
 
     if weather_data.nil?
-      @forecast = Forecast.new(zip_code: zip_code)
+      @forecast = Forecast.new(address: address, zip_code: zip_code)
       render :new, status: :unprocessable_content
       return
     end
@@ -62,13 +66,21 @@ class ForecastsController < ApplicationController
   end
 
   def forecast_params
-    params.require(:forecast).permit(:zip_code)
+    params.require(:forecast).permit(:address)
   end
 
-  def fetch_weather_data(zip_code)
-    coords = GeonamesService.coordinates_for(zip_code)
-    WeatherService.fetch_forecast(lat: coords[:lat], lng: coords[:lng])
-  rescue GeonamesService::Error, WeatherService::Error => e
+  def geocode_address(address)
+    AddressGeocodingService.lookup(address)
+  rescue AddressGeocodingService::Error => e
+    @forecast = Forecast.new(address: address)
+    flash.now[:alert] = e.message
+    render :new, status: :unprocessable_content
+    nil
+  end
+
+  def fetch_weather_data(location)
+    WeatherService.fetch_forecast(lat: location.fetch(:lat), lng: location.fetch(:lng))
+  rescue WeatherService::Error => e
     flash.now[:alert] = e.message
     nil
   end

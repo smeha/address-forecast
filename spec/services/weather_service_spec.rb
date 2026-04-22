@@ -1,14 +1,6 @@
 require "rails_helper"
 
 RSpec.describe WeatherService do
-  before do
-    ENV["WEATHER_GOV_API_URL"] = "https://api.weather.gov"
-  end
-
-  after do
-    ENV.delete("WEATHER_GOV_API_URL")
-  end
-
   describe ".fetch_forecast" do
     # Pin New York City for specs
     subject(:result) { described_class.fetch_forecast(lat: 40.7484, lng: -73.9967) }
@@ -50,6 +42,21 @@ RSpec.describe WeatherService do
 
     it "returns the low temperature for today" do
       expect(result[:low_temp]).to eq(58)
+    end
+
+    context "when the points API redirects to a canonical URL" do
+      let(:redirected_points_url) { "https://api.weather.gov/points/40.7484,-73.9967/" }
+
+      before do
+        stub_request(:get, "https://api.weather.gov/points/40.7484,-73.9967")
+          .to_return(status: 301, headers: { "Location" => redirected_points_url })
+        stub_request(:get, redirected_points_url)
+          .to_return(status: 200, body: points_body, headers: { "Content-Type" => "application/json" })
+      end
+
+      it "follows the redirect and returns forecast data" do
+        expect(result[:current_temp]).to eq(72)
+      end
     end
 
     context "when the points API does not return a forecast URL" do

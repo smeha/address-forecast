@@ -1,4 +1,6 @@
 class Forecast < ApplicationRecord
+  attr_accessor :address
+
   CACHE_TTL = 30.minutes
   ZIP_CODE_FORMAT = /\A\d{5}\z/
 

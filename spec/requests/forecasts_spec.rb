@@ -33,58 +33,63 @@ RSpec.describe "Forecasts", type: :request do
 
   describe "POST /forecasts" do
     let(:weather_data) { { current_temp: 72, high_temp: 80, low_temp: 60 } }
+    let(:address) { "350 5th Ave, New York, NY" }
+    let(:location) { { lat: 40.7484, lng: -73.9967, zip_code: "10001" } }
 
     before do
-      allow(GeonamesService).to receive(:coordinates_for).and_return({ lat: 40.7484, lng: -73.9967 })
+      allow(AddressGeocodingService).to receive(:lookup).and_return(location)
       allow(WeatherService).to receive(:fetch_forecast).and_return(weather_data)
     end
 
     context "when no cached forecast exists" do
       it "creates a forecast and redirects to it" do
-        post forecasts_path, params: { forecast: { zip_code: "10001" } }
+        post forecasts_path, params: { forecast: { address: address } }
         expect(response).to redirect_to(forecast_path(Forecast.last))
         expect(Forecast.count).to eq(1)
+        expect(Forecast.last.zip_code).to eq("10001")
       end
     end
 
-    context "when a fresh cached forecast exists (under 30 minutes old)" do
+    context "when a fresh forecast exists for the resolved ZIP code" do
       let!(:existing) { create(:forecast, zip_code: "10001", updated_at: 10.minutes.ago) }
 
-      it "redirects to the existing forecast without updating" do
-        post forecasts_path, params: { forecast: { zip_code: "10001" } }
+      it "redirects to the existing forecast without fetching weather data" do
+        post forecasts_path, params: { forecast: { address: address } }
         expect(response).to redirect_to(forecast_path(existing))
+        expect(flash[:notice]).to eq("Forecast was pulled from cache.")
         expect(WeatherService).not_to have_received(:fetch_forecast)
       end
     end
 
-    context "when the cached forecast is stale (over 30 minutes old)" do
+    context "when the forecast for the resolved ZIP code is stale" do
       let!(:existing) { create(:forecast, zip_code: "10001", updated_at: 45.minutes.ago) }
 
       it "updates the existing forecast and redirects to it" do
-        post forecasts_path, params: { forecast: { zip_code: "10001" } }
+        post forecasts_path, params: { forecast: { address: address } }
         expect(response).to redirect_to(forecast_path(existing))
         expect(Forecast.count).to eq(1)
         expect(existing.reload.current_temp).to eq(72)
       end
     end
 
-    context "when the GeoNames API fails" do
+    context "when address geocoding fails" do
       before do
-        allow(GeonamesService).to receive(:coordinates_for).and_raise(GeonamesService::Error, "ZIP not found")
+        allow(AddressGeocodingService).to receive(:lookup).and_raise(AddressGeocodingService::Error, "Address could not be found")
       end
 
       it "re-renders the new form with an alert" do
-        post forecasts_path, params: { forecast: { zip_code: "99999" } }
+        post forecasts_path, params: { forecast: { address: "bad address" } }
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.body).to include("ZIP not found")
+        expect(response.body).to include("Address could not be found")
+        expect(WeatherService).not_to have_received(:fetch_forecast)
       end
     end
 
-    context "when an invalid ZIP code is submitted" do
-      it "re-renders the new form without fetching external data" do
-        post forecasts_path, params: { forecast: { zip_code: "ABCDE" } }
+    context "when a blank address is submitted" do
+      it "re-renders the new form without geocoding or fetching weather data" do
+        post forecasts_path, params: { forecast: { address: "" } }
         expect(response).to have_http_status(:unprocessable_content)
-        expect(GeonamesService).not_to have_received(:coordinates_for)
+        expect(AddressGeocodingService).not_to have_received(:lookup)
         expect(WeatherService).not_to have_received(:fetch_forecast)
       end
     end

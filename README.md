@@ -1,11 +1,12 @@
 # Address Forecast application
 ## Tech Stack
-- Ruby (v3.4.8)
-- Rails (v8.1)
-- PostgreSQL (v18)
-- Bundler (4.0.10)
-- RSpec-Rails (v8.0)
-- RuboCop (via rubocop-rails-omakase + rubocop-performance + rubocop-rspec)
+* Ruby (v3.4.8)
+* Rails (v8.1)
+* PostgreSQL (v18)
+* Bundler (4.0.10)
+* RSpec-Rails (v8.0)
+* Geocoder (v1.8)
+* RuboCop (via rubocop-rails-omakase + rubocop-performance + rubocop-rspec)
 
 ## How to run locally
 ### Install dependencies
@@ -17,12 +18,6 @@ bundle install
 ```bash
 rails db:create
 rails db:migrate
-rails db:seed
-```
-
-### Setup environment variables
-```bash
-cp .env.example .env
 ```
 
 ### Run the project
@@ -32,9 +27,9 @@ rails s
 ```
 
 ### Usage
-In terminal(command line) type: `rails s`
-
-Open in the browser URL: http://127.0.0.1:3000/
+* In terminal(command line) type: `rails s`
+* Open in the browser URL: http://127.0.0.1:3000/
+* Enter a street address in the forecast lookup form. The application resolves the address to latitude, longitude, and ZIP code, retrieves weather data for that location, and stores the forecast by ZIP code for cache reuse.
 
 ## Linting, tests, type checking and audits
 ### RuboCop
@@ -55,19 +50,42 @@ bundler-audit
 ```
 
 ## APIs Used
-### https://www.geonames.org/
-For decoding ZIP Code to lat/long
+### Geocoder
+Geocoder gem is used for resolving a street address to latitude, longitude, and ZIP code.
 
-Example: http://api.geonames.org/postalCodeLookupJSON?postalcode=%ZIPCODE%&country=USA&username=%GEONAMESUSERNAME%
-
-Unused(!) example for only current forecast: http://api.geonames.org/findNearByWeatherJSON?lat=%LAT%&lng=%LONG%&username=%GEONAMESUSERNAME%
+The app currently configures Geocoder to use Nominatim in `config/initializers/geocoder.rb`. For production use, consider a provider with a commercial and higher request limits.
 
 ### https://www.weather.gov/
-For getting the forecast via lat/long
+Weather.gov is used for getting the forecast via latitude and longitude.
 
 Example: https://api.weather.gov/points/{latitude},{longitude}
 
-## Initial Requirments
+## Object Decomposition
+### `Forecast`
+Active Record model for cached forecast data. It owns ZIP code validation, the 30-minute cache freshness rule, and the query scopes used to display recently updated forecasts.
+
+### `ForecastsController`
+Coordinates the web request flow. It validates address presence, asks `AddressGeocodingService` to resolve the address, uses ZIP code as the cache key, and delegates weather retrieval to `WeatherService`.
+
+### `AddressGeocodingService`
+Encapsulates Geocoder provider details. It converts a user-entered address into a small normalized hash containing `lat`, `lng`, and `zip_code`, and raises a service-specific error for controller-safe handling.
+
+### `WeatherService`
+Encapsulates weather.gov access. It resolves the weather.gov grid forecast URL, parses forecast periods, and returns the current, high, and low temperatures expected by the `Forecast` model.
+
+## Design Notes
+* The application accepts full addresses but intentionally caches by ZIP code to match the requirement and avoid duplicate cache entries for "equivalent" addresses.
+* Service objects isolate external API details from Rails controllers and models.
+* External service failures are converted to application-specific errors so the UI can present useful feedback without exposing low-level exceptions.
+* Request and service specs cover successful lookup, cache reuse, stale cache refresh, geocoding failures, weather.gov failures, and model validation.
+
+## Scalability Considerations
+* The database enforces one cached forecast per ZIP code with a unique index.
+* The current provider is suitable for a small exercise. A production deployment should use a geocoding provider with explicit rate limits, monitoring and retry guidance.
+* For higher traffic, the forecast cache could move from database to Redis while retaining ZIP code as the cache key.
+* Background refresh could be added later, for example in Sidekiq, if stale forecasts should be updated asynchronously instead of during user requests.
+
+## Initial Requirements
 ### Requirements:
 * Must be done in Ruby on Rails
 * Accept an address as input
@@ -77,4 +95,3 @@ Example: https://api.weather.gov/points/{latitude},{longitude}
 ### Assumptions
 * This project is open to interpretation
 * Functionality is a priority over form
-

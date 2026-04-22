@@ -1,1 +1,0 @@
-Dotenv.require_keys("WEATHER_GOV_API_URL", "GEONAMES_API_URL", "GEONAMES_USERNAME") unless Rails.env.test?

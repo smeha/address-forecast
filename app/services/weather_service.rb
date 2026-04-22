@@ -3,6 +3,8 @@ require "json"
 
 class WeatherService
   Error = Class.new(StandardError)
+  BASE_URL = "https://api.weather.gov"
+  MAX_REDIRECTS = 3
   REQUEST_TIMEOUT = 5
 
   def self.fetch_forecast(lat:, lng:)
@@ -34,7 +36,7 @@ class WeatherService
   private
 
   def fetch_periods
-    points_uri = URI("#{ENV.fetch("WEATHER_GOV_API_URL")}/points/#{@lat},#{@lng}")
+    points_uri = URI("#{BASE_URL}/points/#{@lat},#{@lng}")
     forecast_url = fetch_json(points_uri, "weather.gov points API").dig("properties", "forecast")
     raise Error, "Could not resolve forecast URL from weather.gov" unless forecast_url
 
@@ -52,9 +54,28 @@ class WeatherService
     raise Error, "Could not connect to #{source}: #{e.message}"
   end
 
-  def http_get(uri)
+  def http_get(uri, redirect_count = 0)
     Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https", open_timeout: REQUEST_TIMEOUT, read_timeout: REQUEST_TIMEOUT) do |http|
-      http.get(uri.request_uri)
+      response = http.request(request_for(uri))
+      return follow_redirect(uri, response, redirect_count) if response.is_a?(Net::HTTPRedirection)
+
+      response
     end
+  end
+
+  def request_for(uri)
+    request = Net::HTTP::Get.new(uri.request_uri)
+    request["Accept"] = "application/geo+json, application/json"
+    request["User-Agent"] = "address-forecast"
+    request
+  end
+
+  def follow_redirect(uri, response, redirect_count)
+    raise Error, "weather.gov returned too many redirects" if redirect_count >= MAX_REDIRECTS
+
+    location = response["Location"]
+    return response if location.blank?
+
+    http_get(URI.join(uri.to_s, location), redirect_count + 1)
   end
 end
