@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>ZIP to Cached Forecast</title>
+    <title>Address or ZIP to Cached Forecast</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -11,14 +11,16 @@
   </head>
 
   <body>
-    <% if notice.present? %>
-      <p style="color: green"><%= notice %></p>
-    <% end %>
+    <main>
+      <% if notice.present? %>
+        <p class="flash notice"><%= notice %></p>
+      <% end %>
 
-    <% if alert.present? %>
-      <p style="color: red"><%= alert %></p>
-    <% end %>
+      <% if alert.present? %>
+        <p class="flash alert"><%= alert %></p>
+      <% end %>
 
-    <%= yield %>
+      <%= yield %>
+    </main>
   </body>
 </html>

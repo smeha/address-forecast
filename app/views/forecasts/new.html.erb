@@ -2,8 +2,6 @@
 
 <%= render "form", forecast: @forecast %>
 
-<br>
-
-<div>
-  <%= link_to "Back to List of Cached Forecasts", forecasts_path %>
+<div class="actions">
+  <%= link_to "Back to List of Cached Forecasts", forecasts_path, class: "button" %>
 </div>

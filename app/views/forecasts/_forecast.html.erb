@@ -1,9 +1,9 @@
-<div id="<%= dom_id forecast %>">
+<div id="<%= dom_id forecast %>" class="forecast">
   <%# Cache status indicator — shows whether this data is within the 30-minute cache window %>
   <% if forecast.fresh? %>
-    <p><strong>Cache Status:</strong> <span style="color: green;">Cached</span> &mdash; data is <%= time_ago_in_words(forecast.updated_at) %> old (valid for 30 minutes)</p>
+    <p><strong>Cache Status:</strong> <span class="status-fresh">Cached</span> &mdash; data is <%= time_ago_in_words(forecast.updated_at) %> old (valid for 30 minutes)</p>
   <% else %>
-    <p><strong>Cache Status:</strong> <span style="color: darkorange;">Cache Expired</span> &mdash; last updated <%= time_ago_in_words(forecast.updated_at) %> ago</p>
+    <p><strong>Cache Status:</strong> <span class="status-expired">Cache Expired</span> &mdash; last updated <%= time_ago_in_words(forecast.updated_at) %> ago</p>
   <% end %>
 
   <p><strong>ZIP Code:</strong> <%= forecast.zip_code %></p>

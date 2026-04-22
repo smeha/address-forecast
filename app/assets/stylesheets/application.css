@@ -13,3 +13,108 @@
  *= require_tree .
  *= require_self
  */
+
+body {
+  max-width: 760px;
+  margin: 40px auto;
+  padding: 0 20px;
+  color: #1f2933;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  background: #f6f8fa;
+}
+
+main {
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #d9e2ec;
+  border-radius: 8px;
+}
+
+h1,
+h2 {
+  line-height: 1.2;
+}
+
+h1 {
+  margin-top: 0;
+}
+
+a {
+  color: #1d4ed8;
+}
+
+form {
+  margin: 24px 0;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #bcccdc;
+  border-radius: 6px;
+  font: inherit;
+}
+
+input[type="submit"],
+button,
+.button {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 6px;
+  color: #ffffff;
+  background: #1d4ed8;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 22px;
+}
+
+.flash,
+.form-errors,
+.forecast,
+.forecast-list {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 1px solid #d9e2ec;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.notice {
+  color: #166534;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.alert,
+.form-errors {
+  color: #991b1b;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.status-fresh {
+  color: #166534;
+  font-weight: 700;
+}
+
+.status-expired {
+  color: #9a3412;
+  font-weight: 700;
+}

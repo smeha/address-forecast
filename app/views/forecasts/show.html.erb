@@ -1,7 +1,6 @@
 <%= render @forecast %>
 
-<div>
-  <%= link_to "Back to List of Forecasts", forecasts_path %>
-<br/><br/>
+<div class="actions">
+  <%= link_to "Back to List of Forecasts", forecasts_path, class: "button" %>
   <%= button_to "Destroy this forecast", @forecast, method: :delete %>
 </div>
