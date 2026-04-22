@@ -26,7 +26,6 @@ rails db:migrate
 ```
 
 ### Run the project
-In separate terminals:
 ```bash
 rails s
 ```
