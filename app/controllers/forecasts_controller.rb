@@ -13,7 +13,15 @@ class ForecastsController < ApplicationController
   end
 
   def create
-    zip_code = forecast_params[:zip_code]
+    zip_code = forecast_params[:zip_code].to_s.strip
+
+    unless Forecast.valid_zip_code?(zip_code)
+      @forecast = Forecast.new(zip_code: zip_code)
+      @forecast.errors.add(:zip_code, zip_code.blank? ? :blank : "must be a 5-digit US ZIP code")
+      render :new, status: :unprocessable_content
+      return
+    end
+
     existing = Forecast.find_by(zip_code: zip_code)
 
     if existing&.fresh?

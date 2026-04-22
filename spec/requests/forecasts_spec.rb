@@ -76,17 +76,16 @@ RSpec.describe "Forecasts", type: :request do
       it "re-renders the new form with an alert" do
         post forecasts_path, params: { forecast: { zip_code: "99999" } }
         expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("ZIP not found")
       end
     end
 
     context "when an invalid ZIP code is submitted" do
-      before do
-        allow(GeonamesService).to receive(:coordinates_for).and_return({ lat: 40.7484, lng: -73.9967 })
-      end
-
-      it "re-renders the new form" do
+      it "re-renders the new form without fetching external data" do
         post forecasts_path, params: { forecast: { zip_code: "ABCDE" } }
         expect(response).to have_http_status(:unprocessable_content)
+        expect(GeonamesService).not_to have_received(:coordinates_for)
+        expect(WeatherService).not_to have_received(:fetch_forecast)
       end
     end
   end

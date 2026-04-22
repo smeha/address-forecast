@@ -43,5 +43,35 @@ RSpec.describe GeonamesService do
         expect { result }.to raise_error(GeonamesService::Error, /not found/)
       end
     end
+
+    context "when GeoNames returns an HTTP error" do
+      before do
+        stub_request(:get, /geonames\.org/).to_return(status: 503, body: "Service Unavailable")
+      end
+
+      it "raises GeonamesService::Error" do
+        expect { result }.to raise_error(GeonamesService::Error, /HTTP 503/)
+      end
+    end
+
+    context "when GeoNames returns malformed JSON" do
+      before do
+        stub_request(:get, /geonames\.org/).to_return(status: 200, body: "not-json")
+      end
+
+      it "raises GeonamesService::Error" do
+        expect { result }.to raise_error(GeonamesService::Error, /invalid JSON/)
+      end
+    end
+
+    context "when GeoNames times out" do
+      before do
+        stub_request(:get, /geonames\.org/).to_timeout
+      end
+
+      it "raises GeonamesService::Error" do
+        expect { result }.to raise_error(GeonamesService::Error, /Could not connect/)
+      end
+    end
   end
 end

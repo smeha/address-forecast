@@ -59,5 +59,34 @@ RSpec.describe WeatherService do
         expect { result }.to raise_error(WeatherService::Error, /forecast URL/)
       end
     end
+
+    context "when the points API returns an HTTP error" do
+      before do
+        stub_request(:get, /weather\.gov\/points/)
+          .to_return(status: 503, body: "Service Unavailable")
+      end
+
+      it "raises WeatherService::Error" do
+        expect { result }.to raise_error(WeatherService::Error, /HTTP 503/)
+      end
+    end
+
+    context "when the points API returns malformed JSON" do
+      let(:points_body) { "not-json" }
+
+      it "raises WeatherService::Error" do
+        expect { result }.to raise_error(WeatherService::Error, /invalid JSON/)
+      end
+    end
+
+    context "when the forecast API times out" do
+      before do
+        stub_request(:get, /weather\.gov\/gridpoints/).to_timeout
+      end
+
+      it "raises WeatherService::Error" do
+        expect { result }.to raise_error(WeatherService::Error, /Could not connect/)
+      end
+    end
   end
 end
