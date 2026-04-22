@@ -58,7 +58,7 @@ bundler-audit
 ### Geocoder
 Geocoder gem is used for resolving a street address or ZIP code to latitude, longitude, and ZIP code.
 
-The app currently configures Geocoder to use Nominatim in `config/initializers/geocoder.rb`. For production use, consider a provider with a commercial and higher request limits.
+The app currently configures Geocoder to use Nominatim in `config/initializers/geocoder.rb`. For production use, consider a provider with a commercial license and higher request limits.
 
 ### https://www.weather.gov/
 Weather.gov is used for getting the forecast via latitude and longitude.

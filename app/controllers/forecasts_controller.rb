@@ -24,14 +24,22 @@ class ForecastsController < ApplicationController
       return
     end
 
+    zip_code = address if Forecast.valid_zip_code?(address)
+    existing = Forecast.find_by(zip_code: zip_code) if zip_code
+
+    if existing&.fresh?
+      redirect_to_cached_forecast(existing)
+      return
+    end
+
     location = geocode_address(address)
     return if performed?
 
     zip_code = location.fetch(:zip_code)
-    existing = Forecast.find_by(zip_code: zip_code)
+    existing ||= Forecast.find_by(zip_code: zip_code)
 
     if existing&.fresh?
-      redirect_to forecast_url(existing), notice: "Forecast was pulled from cache."
+      redirect_to_cached_forecast(existing)
       return
     end
 
@@ -85,5 +93,9 @@ class ForecastsController < ApplicationController
   rescue WeatherService::Error => e
     flash.now[:alert] = e.message
     nil
+  end
+
+  def redirect_to_cached_forecast(forecast)
+    redirect_to forecast_url(forecast), notice: "Forecast was pulled from cache."
   end
 end

@@ -73,6 +73,18 @@ RSpec.describe "Forecasts", type: :request do
       end
     end
 
+    context "when the input is a fresh cached ZIP code" do
+      let!(:existing) { create(:forecast, zip_code: "92130", updated_at: 10.minutes.ago) }
+
+      it "redirects to the cached forecast without geocoding or fetching weather data" do
+        post forecasts_path, params: { forecast: { address: "92130" } }
+        expect(response).to redirect_to(forecast_path(existing))
+        expect(flash[:notice]).to eq("Forecast was pulled from cache.")
+        expect(AddressGeocodingService).not_to have_received(:lookup)
+        expect(WeatherService).not_to have_received(:fetch_forecast)
+      end
+    end
+
     context "when the forecast for the resolved ZIP code is stale" do
       let!(:existing) { create(:forecast, zip_code: "10001", updated_at: 45.minutes.ago) }
 
