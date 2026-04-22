@@ -9,6 +9,11 @@
 * RuboCop (via rubocop-rails-omakase + rubocop-performance + rubocop-rspec)
 
 ## How to run locally
+### Prerequisites
+- Ruby 3.4.8 (`rbenv install 3.4.8`)
+- PostgreSQL running locally (`brew services start postgresql`)
+- Bundler
+
 ### Install dependencies
 ```bash
 bundle install
