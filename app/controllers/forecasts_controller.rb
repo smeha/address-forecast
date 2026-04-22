@@ -1,3 +1,5 @@
+# Coordinates the web request flow: validates input, geocodes the address,
+# uses ZIP code as the cache key, and delegates weather retrieval to WeatherService.
 class ForecastsController < ApplicationController
   before_action :set_forecast, only: %i[show destroy]
 

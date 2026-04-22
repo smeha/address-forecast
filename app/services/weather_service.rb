@@ -1,6 +1,11 @@
 require "net/http"
 require "json"
 
+# Encapsulates weather.gov access. Resolves the forecast grid URL from
+# coordinates, parses forecast periods, and returns current, high, and low
+# temperatures expected by the Forecast model.
+#
+# weather.gov is a public API — no key required.
 class WeatherService
   Error = Class.new(StandardError)
   BASE_URL = "https://api.weather.gov"
@@ -21,6 +26,8 @@ class WeatherService
     raise Error, "No forecast periods returned from weather.gov" if periods.blank?
 
     today = Time.now.strftime("%m/%d/%y")
+
+    # Collect all periods that overlap today (daytime + nighttime) to derive the daily high and low across both entries.
     today_temps = periods.select do |period|
       Time.parse(period["startTime"]).strftime("%m/%d/%y") == today ||
         Time.parse(period["endTime"]).strftime("%m/%d/%y") == today

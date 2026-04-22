@@ -1,8 +1,14 @@
 <div id="<%= dom_id forecast %>">
-	<label>ZIP: </label> <%= forecast.zip_code %> <br/>
-	<label>Current Temperature: </label> <%= forecast.current_temp %> <br/>
-	<label>Low Temperature: </label> <%= forecast.low_temp %> <br/>
-	<label>High Temperature: </label> <%= forecast.high_temp %> <br/>
-	<label>Last Cached At: </label> <%= forecast.updated_at.localtime %> <br/>
+  <%# Cache status indicator — shows whether this data is within the 30-minute cache window %>
+  <% if forecast.fresh? %>
+    <p><strong>Cache Status:</strong> <span style="color: green;">Cached</span> &mdash; data is <%= time_ago_in_words(forecast.updated_at) %> old (valid for 30 minutes)</p>
+  <% else %>
+    <p><strong>Cache Status:</strong> <span style="color: darkorange;">Cache Expired</span> &mdash; last updated <%= time_ago_in_words(forecast.updated_at) %> ago</p>
+  <% end %>
+
+  <p><strong>ZIP Code:</strong> <%= forecast.zip_code %></p>
+  <p><strong>Current Temperature:</strong> <%= forecast.current_temp %>&deg;F</p>
+  <p><strong>Today's High:</strong> <%= forecast.high_temp %>&deg;F</p>
+  <p><strong>Today's Low:</strong> <%= forecast.low_temp %>&deg;F</p>
+  <p><strong>Last Updated:</strong> <%= forecast.updated_at.localtime.strftime("%B %-d, %Y at %l:%M %p") %></p>
 </div>
-<br/>
