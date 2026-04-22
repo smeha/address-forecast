@@ -21,6 +21,24 @@ RSpec.describe AddressGeocodingService do
       expect(result).to eq({ lat: 40.7484, lng: -73.9967, zip_code: "10001" })
     end
 
+    context "when the input is a ZIP code" do
+      subject(:result) { described_class.lookup("92130") }
+
+      let(:geocoder_result) do
+        instance_double(
+          Geocoder::Result::Base,
+          latitude: "32.9537",
+          longitude: "-117.2310",
+          data: {}
+        )
+      end
+
+      it "uses the ZIP code as the cache key and geocodes it for coordinates" do
+        expect(result).to eq({ lat: 32.9537, lng: -117.231, zip_code: "92130" })
+        expect(Geocoder).to have_received(:search).with("92130, USA")
+      end
+    end
+
     context "when the address is not found" do
       before do
         allow(Geocoder).to receive(:search).and_return([])

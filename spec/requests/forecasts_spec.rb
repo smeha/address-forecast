@@ -50,6 +50,18 @@ RSpec.describe "Forecasts", type: :request do
       end
     end
 
+    context "when the input is a ZIP code" do
+      let(:address) { "92130" }
+      let(:location) { { lat: 32.9537, lng: -117.231, zip_code: "92130" } }
+
+      it "creates a forecast for that ZIP code" do
+        post forecasts_path, params: { forecast: { address: address } }
+        expect(response).to redirect_to(forecast_path(Forecast.last))
+        expect(Forecast.last.zip_code).to eq("92130")
+        expect(WeatherService).to have_received(:fetch_forecast).with(lat: 32.9537, lng: -117.231)
+      end
+    end
+
     context "when a fresh forecast exists for the resolved ZIP code" do
       let!(:existing) { create(:forecast, zip_code: "10001", updated_at: 10.minutes.ago) }
 

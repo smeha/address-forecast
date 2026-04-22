@@ -29,7 +29,7 @@ rails s
 ### Usage
 * In terminal(command line) type: `rails s`
 * Open in the browser URL: http://127.0.0.1:3000/
-* Enter a street address in the forecast lookup form. The application resolves the address to latitude, longitude, and ZIP code, retrieves weather data for that location, and stores the forecast by ZIP code for cache reuse.
+* Enter a street address or 5-digit US ZIP code in the forecast lookup form. The application resolves the input to latitude, longitude, and ZIP code, retrieves weather data for that location, and stores the forecast by ZIP code for cache reuse.
 
 ## Linting, tests, type checking and audits
 ### RuboCop
@@ -51,7 +51,7 @@ bundler-audit
 
 ## APIs Used
 ### Geocoder
-Geocoder gem is used for resolving a street address to latitude, longitude, and ZIP code.
+Geocoder gem is used for resolving a street address or ZIP code to latitude, longitude, and ZIP code.
 
 The app currently configures Geocoder to use Nominatim in `config/initializers/geocoder.rb`. For production use, consider a provider with a commercial and higher request limits.
 
@@ -65,16 +65,16 @@ Example: https://api.weather.gov/points/{latitude},{longitude}
 Active Record model for cached forecast data. It owns ZIP code validation, the 30-minute cache freshness rule, and the query scopes used to display recently updated forecasts.
 
 ### `ForecastsController`
-Coordinates the web request flow. It validates address presence, asks `AddressGeocodingService` to resolve the address, uses ZIP code as the cache key, and delegates weather retrieval to `WeatherService`.
+Coordinates the web request flow. It validates lookup input presence, asks `AddressGeocodingService` to resolve the input, uses ZIP code as the cache key, and delegates weather retrieval to `WeatherService`.
 
 ### `AddressGeocodingService`
-Encapsulates Geocoder provider details. It converts a user-entered address into a small normalized hash containing `lat`, `lng`, and `zip_code`, and raises a service-specific error for controller-safe handling.
+Encapsulates Geocoder provider details. It converts a user-entered address or ZIP code into a small normalized hash containing `lat`, `lng`, and `zip_code`, and raises a service-specific error for controller-safe handling.
 
 ### `WeatherService`
 Encapsulates weather.gov access. It resolves the weather.gov grid forecast URL, parses forecast periods, and returns the current, high, and low temperatures expected by the `Forecast` model.
 
 ## Design Notes
-* The application accepts full addresses but intentionally caches by ZIP code to match the requirement and avoid duplicate cache entries for "equivalent" addresses.
+* The application accepts full addresses and 5-digit US ZIP codes, but intentionally caches by ZIP code to match the requirement and avoid duplicate cache entries for "equivalent" addresses.
 * Service objects isolate external API details from Rails controllers and models.
 * External service failures are converted to application-specific errors so the UI can present useful feedback without exposing low-level exceptions.
 * Request and service specs cover successful lookup, cache reuse, stale cache refresh, geocoding failures, weather.gov failures, and model validation.
