@@ -4,10 +4,10 @@ class Forecast < ApplicationRecord
   validates :zip_code, presence: true, length: { maximum: 10 }, format: { with: /\A\d{5}\z/, message: "must be a 5-digit US ZIP code" }
   validates :current_temp, :high_temp, :low_temp, presence: true, numericality: { only_integer: true }
 
-  scope :fresh, -> { where("updated_at > ?", CACHE_TTL) }
+  scope :fresh, -> { where("updated_at > ?", CACHE_TTL.ago) }
   scope :by_recently_updated, -> { order(updated_at: :desc) }
 
   def fresh?
-    updated_at > CACHE_TTL
+    updated_at > CACHE_TTL.ago
   end
 end
