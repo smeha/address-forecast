@@ -15,6 +15,11 @@ RSpec.describe Forecast, type: :model do
     it { is_expected.to validate_numericality_of(:high_temp).only_integer }
     it { is_expected.to validate_numericality_of(:low_temp).only_integer }
 
+    it "rejects a duplicate ZIP code" do
+      create(:forecast, zip_code: "10001")
+      expect(build(:forecast, zip_code: "10001")).not_to be_valid
+    end
+
     it "rejects a non-numeric ZIP code" do
       forecast.zip_code = "ABCDE"
       expect(forecast).not_to be_valid

@@ -8,7 +8,7 @@ class Forecast < ApplicationRecord
   CACHE_TTL = 30.minutes
   ZIP_CODE_FORMAT = /\A\d{5}\z/
 
-  validates :zip_code, presence: true, length: { maximum: 10 }, format: { with: ZIP_CODE_FORMAT, message: "must be a 5-digit US ZIP code" }
+  validates :zip_code, presence: true, length: { maximum: 10 }, format: { with: ZIP_CODE_FORMAT, message: "must be a 5-digit US ZIP code" }, uniqueness: true
   validates :current_temp, :high_temp, :low_temp, presence: true, numericality: { only_integer: true }
 
   scope :fresh, -> { where("updated_at > ?", CACHE_TTL.ago) }
