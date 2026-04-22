@@ -10,13 +10,17 @@ RSpec.describe WeatherService do
   end
 
   describe ".fetch_forecast" do
+    # Pin New York City for specs
     subject(:result) { described_class.fetch_forecast(lat: 40.7484, lng: -73.9967) }
 
+    # Pin request to noon so +6h and -12h always land on the same calendar day.
+    around { |example| travel_to(Time.zone.now.noon) { example.run } }
+
+    let(:now) { Time.now }
     let(:points_body) do
       { "properties" => { "forecast" => "https://api.weather.gov/gridpoints/OKX/33,37/forecast" } }.to_json
     end
 
-    let(:now) { Time.now }
     let(:forecast_body) do
       {
         "properties" => {

@@ -11,7 +11,6 @@
 ### Install dependencies
 ```bash
 bundle install
-npm install
 ```
 
 ### Setup database
@@ -37,8 +36,23 @@ In terminal(command line) type: `rails s`
 
 Open in the browser URL: http://127.0.0.1:3000/
 
-## Tests
-In terminal(command line) type:  `rails test`
+## Linting, tests, type checking and audits
+### RuboCop
+```bash
+rubocop
+rubocop -a  # auto-fix safe offenses
+```
+
+## Run test cases
+```bash
+rspec
+```
+
+## Application audits
+```bash
+brakeman --no-pager
+bundler-audit
+```
 
 ## APIs Used
 ### https://www.geonames.org/
